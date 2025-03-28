@@ -3,6 +3,7 @@ import math
 import numpy.random as npr
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
 
 from agent import Agent
 from petri import Petri
@@ -13,42 +14,43 @@ PI = math.pi
 
 def main():
     
-    # -----------  INITIALISE PARAMETERS ----------------
+    # -----------  INITIALISE CONST PARAMETERS ----------------
     # Nutrient Grid Parameters:
-    grid_size = 1000  # Square grid dimensions
-    time_step = 0.01 # Stepwise diffusion rate per loop iteration
-    C_max = 2.0      # Maximum nutrient value on a given square
-    D_c = 0.025      # Rate of diffusion
+    GRID_SIZE = 1000  # Square grid dimensions
+    TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
+    C_MAX = 2.0      # Maximum nutrient value on a given square
+    D_C = 0.025      # Rate of diffusion
     
     # Agent Parameters:
-    num_agents = 1   # Initial cell count
-    r_max = 0.1      # Maximum reaction rate
+    AGENT_PARAMS = {
+        "r_max": 0.1,
+        "K_m": 0.5,
+        "m_min": 1,
+        "m_max": 2,
+        "delta_H": 4.0,
+        "F_d": 0.125,
+        "mu": 1,
+        "drag": 4*PI*1, # 4 pi mu (saves recalculating loads)
+        "p": 0.0175,
+        "density": 0.04
+    }
     # TODO: combine m_min m_max and mass into a single parameter?
-    m_min = 1        # Minimum cell mass before immotability
-    m_max = 2*m_min        # Maximum cell mass before division
-    mass = m_min   # Initial cell mass
-    mu = 1           # Viscosity
-    K_m = 0.5       # Michaelis-Menten constant
-    F_d =  0.125       # Drag force
-    delta_H = 4.0    # Proportion of mass converted to metabolic energy
-    density = 0.04   # Density of the agent
-    p = 0.0175 
-    
-    # Simulation Parameters:
-    iters = 10000     # Number of loop iterations for simulation
 
+    # Simulation Parameters:
+    mass = AGENT_PARAMS["m_min"]   # Initial cell mass
+    iters = 5000     # Number of loop iterations for simulation
+    num_agents = 1   # Initial cell count
 
     # ------------ INITIALISE NUTRIENT GRID AND AGENTS ----------------
-    petri = Petri(grid_size, C_max, D_c, time_step)
-    x, y = grid_size//2, grid_size//2
-    for i in range(num_agents):
-        agent = Agent(x=x, y=y, mass=mass, density=density, F_d=F_d, mu=mu, petri=petri, 
-                      r_max=r_max, K_m=K_m, m_min=m_min, m_max=m_max, delta_H=delta_H, p=p)
+    petri = Petri(GRID_SIZE, C_MAX, D_C, TIME_STEP)
+
+    x, y = GRID_SIZE//2, GRID_SIZE//2
+    for _ in range(num_agents):
+        agent = Agent(x=x, y=y, mass=mass, petri=petri, params=AGENT_PARAMS)
         petri.add_agent(agent)
  
- 
     # ---------------------- START SIMULATION ---------------------------------
-    for i in tqdm(range(iters)):
+    for _ in tqdm(range(iters)):
         for agent in petri.agents:
             agent.move()
             agent.eat()
@@ -62,7 +64,7 @@ def main():
 
     # ---------------------- SHOW RESULTS ---------------------------------
     pygame.init()
-    screen = pygame.display.set_mode((grid_size, grid_size))
+    screen = pygame.display.set_mode((GRID_SIZE, GRID_SIZE))
     clock = pygame.time.Clock()
     running = True
 
