@@ -1,9 +1,9 @@
 import pygame
 import math
 import numpy.random as npr
-import matplotlib.pyplot as plt
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor
+import matplotlib.pyplot as plt
+import os
 
 from agent import Agent
 from petri import Petri
@@ -11,34 +11,36 @@ from petri import Petri
 
 PI = math.pi
 
+MODE = 'gif'  # Options: 'standard', 'gif', 'vis'
+# 'standard' - only display at the end
+# 'vis' - display frame every 1% of simulation
+# 'gif' - same as vis but also saves image of frames every 1% GIF
+FOLDER = 'gif1' # Name for the output directory (only for GIF mode)
+
 
 def main():
-    
     # -----------  INITIALISE CONST PARAMETERS ----------------
     # Nutrient Grid Parameters:
-    GRID_SIZE = 1000  # Square grid dimensions
+    GRID_SIZE = 500  # Square grid dimensions
     TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
     C_MAX = 2.0      # Maximum nutrient value on a given square
     D_C = 0.025      # Rate of diffusion
     
     # Agent Parameters:
     AGENT_PARAMS = {
-        "r_max": 0.1,
-        "K_m": 0.5,
-        "m_min": 1,
-        "m_max": 2,
-        "delta_H": 4.0,
-        "F_d": 0.125,
-        "mu": 1,
-        "drag": 4*PI*1, # 4 pi mu (saves recalculating loads)
-        "p": 0.0175,
-        "density": 0.04
+        "r_max": 0.1,   # maximum reaction rate
+        "K_m": 0.5,     # michaelis menten constant
+        "m_min": 1,     # minimum mass of agent
+        "delta_H": 4.0, # mass to energy rate
+        "F_d": 0.125,   # drag force
+        "mu": 0.75,     # viscosity
+        "p": 0.0175,    # nutrient to mass rate
+        "density": 0.04 # density of agent
     }
-    # TODO: combine m_min m_max and mass into a single parameter?
 
     # Simulation Parameters:
     mass = AGENT_PARAMS["m_min"]   # Initial cell mass
-    iters = 5000     # Number of loop iterations for simulation
+    iters = 20000     # Number of loop iterations for simulation
     num_agents = 1   # Initial cell count
 
     # ------------ INITIALISE NUTRIENT GRID AND AGENTS ----------------
@@ -49,9 +51,20 @@ def main():
         agent = Agent(x=x, y=y, mass=mass, petri=petri, params=AGENT_PARAMS)
         petri.add_agent(agent)
  
+    # ------------ CREATE OUTPUT DIRECTORY (for GIF mode) ------------
+    if MODE == 'gif' and not os.path.exists(f"figures/{FOLDER}"):
+        os.makedirs(f"figures/{FOLDER}")
+
     # ---------------------- START SIMULATION ---------------------------------
-    for _ in tqdm(range(iters)):
-        for agent in petri.agents:
+    # initialise pygame
+    pygame.init()
+    screen = pygame.display.set_mode((GRID_SIZE, GRID_SIZE))
+    clock = pygame.time.Clock()
+    running = True
+
+    # start simulation loop
+    for i in tqdm(range(iters)):
+        for agent in petri.agents: # maybe parallelise this?
             agent.move()
             agent.eat()
             new_agent = agent.replicate()
@@ -59,35 +72,31 @@ def main():
                 petri.add_agent(new_agent)
         petri.diffuse()
 
-    print(f'Num of agents: {len(petri.agents)}')
+        # update pygame display ( every 1% for vis/gif, or just at end for standard)
+        if ((MODE=='vis' or MODE=='gif') and i%(iters//100)==0) or (MODE=='standard' and i==iters-1):
+            screen.fill("black")
+            for agent in petri.agents:
+                pygame.draw.circle(surface=screen, center=(agent.x, agent.y), radius=1.0, width=0, color="red")
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            if MODE == 'gif':
+                pygame.image.save(screen, f"figures/{FOLDER}/frame_{i}.png")
+            clock.tick(60)
 
-
-    # ---------------------- SHOW RESULTS ---------------------------------
-    pygame.init()
-    screen = pygame.display.set_mode((GRID_SIZE, GRID_SIZE))
-    clock = pygame.time.Clock()
-    running = True
-
+        if not running:
+            break
+    
+    # keep window open until manually closed
     while running:
-        # poll for events
-        # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        # fill the screen with a color to wipe away anything from last frame
-        screen.fill("black")
-        
-        # RENDER YOUR GAME HERE
-        for agent in petri.agents:
-            pygame.draw.circle(surface=screen, center=(agent.x, agent.y), radius=1.0, width=0, color="red")
-
-        # flip() the display to put your work on screen
         pygame.display.flip()
-        clock.tick(60)  # limits FPS to 60
-
+        clock.tick(60)
     pygame.quit()
-    
-    
-    
+
+
 if __name__ == "__main__":
     main()

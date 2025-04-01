@@ -15,14 +15,8 @@ class Petri:
                                           [1, -4, 1],
                                           [0, 1, 0]])
 
-    def laplacian(self):
-       
+    def laplacian(self):       
         return convolve(self.nutrient_grid, self.laplacian_kernel, mode="constant", cval=0.0)
-        # return (np.roll(self.nutrient_grid, 1, axis=0) +
-        #         np.roll(self.nutrient_grid, -1, axis=0) +
-        #         np.roll(self.nutrient_grid, 1, axis=1) +
-        #         np.roll(self.nutrient_grid, -1, axis=1) -
-        #         4 * self.nutrient_grid)
 
     def diffuse(self):
         self.nutrient_grid += self.time_step * (self.D_c * self.laplacian())
