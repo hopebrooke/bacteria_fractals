@@ -4,18 +4,21 @@ import numpy.random as npr
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import os
+import datetime
+import random as rn
 
 from agent import Agent
 from petri import Petri
 
 
+
 PI = math.pi
 
-MODE = 'gif'  # Options: 'standard', 'gif', 'vis'
+MODE = 'vis'  # Options: 'standard', 'gif', 'vis'
 # 'standard' - only display at the end
 # 'vis' - display frame every 1% of simulation
 # 'gif' - same as vis but also saves image of frames every 1% GIF
-FOLDER = 'gif1' # Name for the output directory (only for GIF mode)
+FOLDER = f'{MODE}_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 
 def main():
@@ -40,7 +43,7 @@ def main():
 
     # Simulation Parameters:
     mass = AGENT_PARAMS["m_min"]   # Initial cell mass
-    iters = 20000     # Number of loop iterations for simulation
+    iters = 50000     # Number of loop iterations for simulation
     num_agents = 1   # Initial cell count
 
     # ------------ INITIALISE NUTRIENT GRID AND AGENTS ----------------
@@ -58,7 +61,7 @@ def main():
     # ---------------------- START SIMULATION ---------------------------------
     # initialise pygame
     pygame.init()
-    screen = pygame.display.set_mode((GRID_SIZE, GRID_SIZE))
+    screen = pygame.display.set_mode((GRID_SIZE*2, GRID_SIZE*2))
     clock = pygame.time.Clock()
     running = True
 
@@ -75,8 +78,11 @@ def main():
         # update pygame display ( every 1% for vis/gif, or just at end for standard)
         if ((MODE=='vis' or MODE=='gif') and i%(iters//100)==0) or (MODE=='standard' and i==iters-1):
             screen.fill("black")
+            for x in range(0, GRID_SIZE):
+                for y in range(0, GRID_SIZE):
+                    pygame.draw.circle(surface=screen, center=(x*2, y*2), radius=1.0, width=0, color=pygame.Color(0,0,int(255*(petri.nutrient_grid[x, y]/2))))
             for agent in petri.agents:
-                pygame.draw.circle(surface=screen, center=(agent.x, agent.y), radius=1.0, width=0, color="red")
+                pygame.draw.circle(surface=screen, center=(agent.x*2, agent.y*2), radius=1.0, width=0, color="red")
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -94,6 +100,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
         pygame.display.flip()
+
         clock.tick(60)
     pygame.quit()
 
