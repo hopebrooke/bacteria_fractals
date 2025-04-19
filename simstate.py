@@ -18,6 +18,7 @@ class SimulationState:
 
         self._init_petri()
 
+    # Initialize the Petri dish with agents
     def _init_petri(self):
         self.petri = Petri(self.grid_size, self.c_max, self.d_c, self.time_step)
         self.petri.agents = []
@@ -27,10 +28,12 @@ class SimulationState:
             self.petri.add_agent(agent)
         self.iteration = 0
 
+    # Start from beginning
     def reset(self):
         self._init_petri()
         self.paused = True
 
+    # Make a step in the simulation
     def update(self):
         if self.paused:
             return
@@ -43,6 +46,7 @@ class SimulationState:
         self.petri.diffuse()
         self.iteration += 1
 
+    # Not used yet, but will be used for changing simulation parameters
     def apply_param_change(self, key, value):
         if key in self.agent_params:
             self.agent_params[key] = value
@@ -61,5 +65,5 @@ class SimulationState:
         else: 
             print(f"Invalid parameter key: {key}")
             return
-        # restart
+        # Start from beginning if parameters change
         self.reset()

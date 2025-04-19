@@ -5,20 +5,20 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import os
 import datetime
-import random as rn
-
 from agent import Agent
 from petri import Petri
 from simstate import SimulationState
 
-
 PI = math.pi
 FOLDER = f'GIF_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
+# Generate Seed for replicable results
 SEED = npr.randint(0,1000000000)
 npr.seed(SEED) # only need to do it here (not for every agent move)
 
 
+
+# Draws a button on screen with text
 def draw_button(screen, text, x, y, w, h, color, text_color):
     pygame.draw.rect(screen, color, (x, y, w, h))
     label = pygame.font.SysFont("Arial", 20).render(text, True, text_color)
@@ -26,6 +26,7 @@ def draw_button(screen, text, x, y, w, h, color, text_color):
     return pygame.Rect(x, y, w, h)
 
 
+# Draws the UI elements on the screen
 def draw_ui(screen, state):
     # Draw nutrient map
     for x in range(state.grid_size):
@@ -41,20 +42,24 @@ def draw_ui(screen, state):
     else:
         play_pause_btn = draw_button(screen, "Pause", 10, 10, 60, 30, (200, 200, 0), (0, 0, 0))
     reset_btn = draw_button(screen, "Reset", 80, 10, 60, 30, (200, 0, 0), (255, 255, 255))
-    # Draw iteration count
+    # Draw text labels
     font = pygame.font.SysFont("Arial", 20)
     iter_label = font.render(f"Iterations: {state.iteration}", True, (255, 255, 255))
-    screen.blit(iter_label, (150, 20))
+    screen.blit(iter_label, (150, 10))
+    agent_label = font.render(f"Agents: {len(state.petri.agents)}", True, (255, 255, 255))
+    screen.blit(agent_label, (150, 30))
+    seed_label = font.render(f"Seed: {SEED}", True, (255, 255, 255))
+    screen.blit(seed_label, (300, 10))
     return play_pause_btn, reset_btn
 
 
 
 
 def main():
-    # -----------  INITIALISE CONST PARAMETERS ----------------
+ 
     # Nutrient Grid Parameters:
     GRID_SIZE = 500  # Square grid dimensions
-    TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
+    TIME_STEP = 0.02 # Stepwise diffusion rate per loop iteration
     C_MAX = 2.0      # Maximum nutrient value on a given square
     D_C = 0.025      # Rate of diffusion
     
@@ -68,72 +73,76 @@ def main():
         "mu": 0.75,      # viscosity
         "p": 0.0175,     # nutrient to mass rate
         "density": 0.04, # density of agent
-        # "seed": SEED
     }
 
     # Simulation Parameters:
     max_iters = 50000     # Number of loop iterations for simulation
     num_agents = 1   # Initial cell count
-    mode = 'vis'    # 'vis' for visualisation, 'gif' same but saves images.
+    mode = 'gif'    # 'vis' for visualisation, 'gif' same but saves images.
 
 
-    # ------------ INITIALISE SIMULATION STATE ----------------
+    # Simulation state (holds all simulation data + petri dish + agents)
     sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, num_agents, max_iters)
 
-    # ------------ CREATE OUTPUT DIRECTORY (for GIF mode) ------------
+
+    # Create output directory for GIFs
     if mode == 'gif' and not os.path.exists(f"figures/{FOLDER}"):
         os.makedirs(f"figures/{FOLDER}")
 
 
-    # ---------------------- START SIMULATION ---------------------------------
+    # Start simulation
     pygame.init()
     screen = pygame.display.set_mode((GRID_SIZE*2, GRID_SIZE*2))
     clock = pygame.time.Clock()
     running = True
 
+    # Draw first screen
     play_pause_btn, reset_btn = draw_ui(screen, sim)
     pygame.display.flip()
 
-    # continue while there are iterations left and the simulation is running
+    # Continue while there are iterations left and the simulation is running
     while sim.iteration < sim.max_iters and running:
-        # check for events (quit, mouse click)
+        # Check for events (quit, mouse click)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 break
+            # If mouse has been clicked, check if it is on buttons
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 if play_pause_btn.collidepoint(mouse_x, mouse_y):
                     sim.paused = not sim.paused
                 elif reset_btn.collidepoint(mouse_x, mouse_y):
                     sim.reset()
+                # Update screen for after button press
                 screen.fill("black")
                 play_pause_btn, reset_btn = draw_ui(screen, sim)
                 pygame.display.flip()
 
+        # Update if simulation is not paused
         if not sim.paused:
-            # simulation step
-            sim.update()
-
-            draw_interval = sim.max_iters // 100
-            pic_interval = sim.max_iters // 500
-            # update pygame display (every 1% for vis/gif, or just at end for standard)
-            if ((mode=='vis' or mode=='gif') and sim.iteration % (draw_interval)==0):
+            
+            sim.update() # update agents + grid
+            
+            draw_interval = 100
+            pic_interval = 1000
+            # Update pygame display every 100 iterations
+            if sim.iteration % (draw_interval)==0:
                 screen.fill("black")
                 play_pause_btn, reset_btn = draw_ui(screen, sim)
                 pygame.display.flip()
+                # Save image every 500 iterations
                 if mode == 'gif' and sim.iteration % (pic_interval)==0:
                     pygame.image.save(screen, f"figures/{FOLDER}/frame_{sim.iteration}.png")
 
         clock.tick(60)
     
-    # keep window open until manually closed
+    # Keep window open until manually closed
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         pygame.display.flip()
-
         clock.tick(60)
         
     pygame.quit()
