@@ -21,7 +21,7 @@ class Agent:
         self.mu = params["mu"]
         self.p = params["p"]
         self.density = params["density"]
-        self.seed = params["seed"]
+        # self.seed = params["seed"]
 
         self.size = mass / self.density
         self.radius = math.sqrt(self.size / PI)
@@ -45,7 +45,7 @@ class Agent:
 
 
     def move(self):
-        if self.m_min <= self.mass or self.mass < self.m_max: 
+        if self.m_min <= self.mass and self.mass < self.m_max: 
             if  self.time_to_change > 0:
                 dx = round(self.velocity * math.cos(self.theta))
                 dy = round(self.velocity * math.sin(self.theta))
@@ -58,7 +58,7 @@ class Agent:
                 self.update_properties()
                 self.time_to_change -= 1
             else:
-                npr.seed(self.seed)
+                # npr.seed(self.seed)
                 self.theta = npr.uniform(0, 2 * PI)
                 self.time_to_change = npr.poisson(10)
 
@@ -83,5 +83,8 @@ class Agent:
 
     def update_properties(self):
         self.size = self.mass / self.density
+        if self.size < 0:
+            print(f"[WARNING] Agent size negative: {self.size}, mass: {self.mass}, density: {self.density}")
+        
         self.radius = math.sqrt(self.size / PI)
         self.velocity = (self.F_d / (self.drag * self.radius))
