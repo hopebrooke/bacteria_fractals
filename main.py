@@ -20,7 +20,9 @@ MODE = 'vis'  # Options: 'standard', 'gif', 'vis'
 # 'gif' - same as vis but also saves image of frames every 1% GIF
 FOLDER = f'{MODE}_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
-SEED = npr.uniform(0,1000000000)
+SEED = int(npr.uniform(0, 1000000))
+print(f'SEED: {SEED}')
+npr.seed(SEED)
 
 
 def main():
@@ -33,15 +35,14 @@ def main():
     
     # Agent Parameters:
     AGENT_PARAMS = {
-        "r_max": 0.1,    # maximum reaction rate
-        "K_m": 0.5,      # michaelis menten constant
-        "m_min": 5,      # minimum mass of agent
-        "delta_H": 4.0,  # mass to energy rate
-        "F_d": 0.125,    # drag force
-        "mu": 0.75,      # viscosity
+        "r_max": 0.05,    # maximum reaction rate
+        "K_m": 0.3,      # michaelis menten constant
+        "m_min": 20,      # minimum mass of agent
+        "delta_H": 6.0,  # mass to energy rate
+        "F_d": 0.4,    # drag force
+        "mu": 0.4,      # viscosity
         "p": 0.0175,     # nutrient to mass rate
-        "density": 0.4, # density of agent
-        "seed": SEED
+        "density": 0.04, # density of agent
     }
 
     # Simulation Parameters:

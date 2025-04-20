@@ -21,7 +21,6 @@ class Agent:
         self.mu = params["mu"]
         self.p = params["p"]
         self.density = params["density"]
-        self.seed = params["seed"]
 
         self.size = mass / self.density
         self.radius = math.sqrt(self.size / PI)
@@ -31,7 +30,6 @@ class Agent:
 
         self.theta = npr.uniform(0, 2 * PI)
         self.time_to_change = npr.poisson(10)
-
 
 
     def eat(self):
@@ -45,7 +43,7 @@ class Agent:
 
 
     def move(self):
-        if self.m_min <= self.mass or self.mass < self.m_max: 
+        if self.m_min <= self.mass and self.mass < self.m_max: 
             if  self.time_to_change > 0:
                 dx = round(self.velocity * math.cos(self.theta))
                 dy = round(self.velocity * math.sin(self.theta))
@@ -58,7 +56,6 @@ class Agent:
                 self.update_properties()
                 self.time_to_change -= 1
             else:
-                npr.seed(self.seed)
                 self.theta = npr.uniform(0, 2 * PI)
                 self.time_to_change = npr.poisson(10)
 
@@ -74,7 +71,6 @@ class Agent:
 
             new_x = max(0, min(self.petri.grid_size - 1, self.x + dx))
             new_y = max(0, min(self.petri.grid_size - 1, self.y + dy))            
-            
             new_agent = Agent(new_x, new_y, self.mass / 2, self.petri, self.params)
             self.mass /= 2
             self.update_properties()
