@@ -31,11 +31,11 @@ def draw_ui(screen, state):
     # Draw nutrient map
     for x in range(state.grid_size):
         for y in range(state.grid_size):
-            val = int(255 * (state.petri.nutrient_grid[x, y] / 2))
-            pygame.draw.circle(screen, (0, 0, val), (x * 2, y * 2), 1)
+            percent_diff = 1 - state.petri.nutrient_grid[x, y]/state.petri.C_max
+            pygame.draw.circle(screen, (79+int(146*percent_diff),53+int(175*percent_diff),155+int(66*(percent_diff))), (x * 2, y * 2), 1)
     # Draw agents
     for agent in state.petri.agents:
-        pygame.draw.circle(screen, (255, 0, 0), (int(agent.x * 2), int(agent.y * 2)), 1)
+        pygame.draw.circle(screen, (229, 89, 52), (int(agent.x * 2), int(agent.y * 2)), 1)
     # Draw UI buttons
     if state.paused:
         play_pause_btn = draw_button(screen, "Play", 10, 10, 60, 30, (0, 200, 0), (255, 255, 255))
@@ -58,23 +58,32 @@ def draw_ui(screen, state):
 def main():
  
     # Nutrient Grid Parameters:
-    GRID_SIZE = 500  # Square grid dimensions
-    TIME_STEP = 0.02 # Stepwise diffusion rate per loop iteration
-    C_MAX = 2.0      # Maximum nutrient value on a given square
-    D_C = 0.025      # Rate of diffusion
+    GRID_SIZE = 350  # Square grid dimensions
+    TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
+    C_MAX = 1.0      # Maximum nutrient value on a given square
+    D_C = 0.05      # Rate of diffusion
     
     # Agent Parameters:
     AGENT_PARAMS = {
         "r_max": 0.1,    # maximum reaction rate
-        "K_m": 0.5,      # michaelis menten constant
+        "K_m": 0.25,      # michaelis menten constant
         "m_min": 1,      # minimum mass of agent
-        "delta_H": 4.0,  # mass to energy rate
-        "F_d": 0.125,    # drag force
-        "mu": 0.75,      # viscosity
-        "p": 0.0175,     # nutrient to mass rate
-        "density": 0.04, # density of agent
+        "delta_H": 12,  # mass to energy rate
+        "F_d": 0.5,    # drag force
+        "mu": 0.8,      # viscosity
+        "p": 0.01,     # nutrient to mass rate
+        "density": 0.08, # density of agent
     }
 
+
+    # Paper values
+    min_r = math.sqrt((AGENT_PARAMS["m_min"]/AGENT_PARAMS["density"])/math.pi)
+    v_max = (AGENT_PARAMS["F_d"]/(4*math.pi*AGENT_PARAMS["mu"]*min_r))
+    print(f'A: {AGENT_PARAMS["K_m"]/C_MAX}')
+    print(f'B: {(AGENT_PARAMS["r_max"]*min_r)/(C_MAX*v_max)}')
+    print(f'C: {(min_r*AGENT_PARAMS["p"]*AGENT_PARAMS["r_max"])/(v_max*AGENT_PARAMS["density"])}')
+    print(f'D: {(D_C)/(min_r*v_max)}')
+    print(f'E: {(AGENT_PARAMS["F_d"]*min_r)/(AGENT_PARAMS["m_min"]*AGENT_PARAMS["delta_H"])}')
     # Simulation Parameters:
     max_iters = 50000     # Number of loop iterations for simulation
     num_agents = 1   # Initial cell count
@@ -113,6 +122,7 @@ def main():
                 if play_pause_btn.collidepoint(mouse_x, mouse_y):
                     sim.paused = not sim.paused
                 elif reset_btn.collidepoint(mouse_x, mouse_y):
+                    npr.seed(SEED)
                     sim.reset()
                 # Update screen for after button press
                 screen.fill("black")

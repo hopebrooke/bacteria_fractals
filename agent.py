@@ -34,11 +34,11 @@ class Agent:
 
     # Consume nutrients if available
     def eat(self):
-        nutrient_level = self.petri.get_nutrient_level(self.x, self.y)
+        nutrient_level = self.petri.get_nutrient_level(round(self.x), round(self.y))
         nutrients_taken = (self.r_max * nutrient_level) / (self.K_m + nutrient_level)
         
         self.mass += (self.p * nutrients_taken * self.size)
-        self.petri.consume_nutrient(self.x, self.y, nutrients_taken)
+        self.petri.consume_nutrient(round(self.x), round(self.y), nutrients_taken)
         
         self.update_properties()
 
@@ -47,8 +47,10 @@ class Agent:
     def move(self):
         if self.m_min <= self.mass and self.mass < self.m_max: 
             if  self.time_to_change > 0:
-                dx = round(self.velocity * math.cos(self.theta))
-                dy = round(self.velocity * math.sin(self.theta))
+                scaling_factor = self.petri.grid_size // 5
+                dx = self.velocity * math.cos(self.theta) * scaling_factor
+                dy = self.velocity * math.sin(self.theta) * scaling_factor
+                # print(f'{dx}, {dy}')
                 
                 self.x = max(0, min(self.x + dx, self.petri.grid_size - 1))
                 self.y = max(0, min(self.y + dy, self.petri.grid_size - 1))
@@ -75,7 +77,6 @@ class Agent:
 
             new_x = max(0, min(self.petri.grid_size - 1, self.x + dx))
             new_y = max(0, min(self.petri.grid_size - 1, self.y + dy))            
-            
             new_agent = Agent(new_x, new_y, self.mass / 2, self.petri, self.params)
             self.mass /= 2
             self.update_properties()
