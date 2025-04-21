@@ -1,6 +1,7 @@
 
 from agent import Agent
 from petri import Petri
+import numpy.random as npr
 
 class SimulationState:
     def __init__(self, grid_size, agent_params, c_max, d_c, time_step, num_agents, max_iters):
@@ -24,7 +25,7 @@ class SimulationState:
         self.petri.agents = []
         center = self.grid_size // 2
         for _ in range(self.num_agents):
-            agent = Agent(center, center, self.agent_params["m_min"], self.petri, self.agent_params)
+            agent = Agent(center+int(npr.uniform(-25,25)), center+int(npr.uniform(-25,25)), self.agent_params["m_min"], self.petri, self.agent_params)
             self.petri.add_agent(agent)
         self.iteration = 0
 
