@@ -32,6 +32,7 @@ class Agent:
         self.time_to_change = npr.poisson(10)
 
 
+    # Consume nutrients if available
     def eat(self):
         nutrient_level = self.petri.get_nutrient_level(self.x, self.y)
         nutrients_taken = (self.r_max * nutrient_level) / (self.K_m + nutrient_level)
@@ -42,6 +43,7 @@ class Agent:
         self.update_properties()
 
 
+    # Move if big enough
     def move(self):
         if self.m_min <= self.mass and self.mass < self.m_max: 
             if  self.time_to_change > 0:
@@ -56,10 +58,12 @@ class Agent:
                 self.update_properties()
                 self.time_to_change -= 1
             else:
+                # npr.seed(self.seed)
                 self.theta = npr.uniform(0, 2 * PI)
                 self.time_to_change = npr.poisson(10)
 
 
+    # Replicate if over mass_max
     def replicate(self):
         if self.mass >= self.m_max:
             # Pick a random direction from 8 possible directions (Moore neighborhood)
@@ -77,7 +81,12 @@ class Agent:
             return new_agent
         return None
 
+
+    # Recalculate properties
     def update_properties(self):
         self.size = self.mass / self.density
+        if self.size < 0:
+            print(f"[WARNING] Agent size negative: {self.size}, mass: {self.mass}, density: {self.density}")
+        
         self.radius = math.sqrt(self.size / PI)
         self.velocity = (self.F_d / (self.drag * self.radius))
