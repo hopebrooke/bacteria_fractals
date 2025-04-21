@@ -58,23 +58,32 @@ def draw_ui(screen, state):
 def main():
  
     # Nutrient Grid Parameters:
-    GRID_SIZE = 250  # Square grid dimensions
+    GRID_SIZE = 350  # Square grid dimensions
     TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
     C_MAX = 1.0      # Maximum nutrient value on a given square
-    D_C = 0.025      # Rate of diffusion
+    D_C = 0.05      # Rate of diffusion
     
     # Agent Parameters:
     AGENT_PARAMS = {
-        "r_max": 0.25,    # maximum reaction rate
-        "K_m": 0.5,      # michaelis menten constant
-        "m_min": 10,      # minimum mass of agent
-        "delta_H": 2.5,  # mass to energy rate
-        "F_d": 0.2,    # drag force
-        "mu": 0.1,      # viscosity
+        "r_max": 0.1,    # maximum reaction rate
+        "K_m": 0.25,      # michaelis menten constant
+        "m_min": 1,      # minimum mass of agent
+        "delta_H": 12,  # mass to energy rate
+        "F_d": 0.5,    # drag force
+        "mu": 0.8,      # viscosity
         "p": 0.01,     # nutrient to mass rate
-        "density": 0.02, # density of agent
+        "density": 0.08, # density of agent
     }
 
+
+    # Paper values
+    min_r = math.sqrt((AGENT_PARAMS["m_min"]/AGENT_PARAMS["density"])/math.pi)
+    v_max = (AGENT_PARAMS["F_d"]/(4*math.pi*AGENT_PARAMS["mu"]*min_r))
+    print(f'A: {AGENT_PARAMS["K_m"]/C_MAX}')
+    print(f'B: {(AGENT_PARAMS["r_max"]*min_r)/(C_MAX*v_max)}')
+    print(f'C: {(min_r*AGENT_PARAMS["p"]*AGENT_PARAMS["r_max"])/(v_max*AGENT_PARAMS["density"])}')
+    print(f'D: {(D_C)/(min_r*v_max)}')
+    print(f'E: {(AGENT_PARAMS["F_d"]*min_r)/(AGENT_PARAMS["m_min"]*AGENT_PARAMS["delta_H"])}')
     # Simulation Parameters:
     max_iters = 50000     # Number of loop iterations for simulation
     num_agents = 1   # Initial cell count
