@@ -30,17 +30,17 @@ def main():
     # Nutrient Grid Parameters:
     GRID_SIZE = 500  # Square grid dimensions
     TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
-    C_MAX = 2.0      # Maximum nutrient value on a given square
+    C_MAX = 1.5      # Maximum nutrient value on a given square
     D_C = 0.025      # Rate of diffusion
     
     # Agent Parameters:
     AGENT_PARAMS = {
         "r_max": 0.05,    # maximum reaction rate
         "K_m": 0.3,      # michaelis menten constant
-        "m_min": 20,      # minimum mass of agent
+        "m_min": 10,      # minimum mass of agent
         "delta_H": 6.0,  # mass to energy rate
         "F_d": 0.4,    # drag force
-        "mu": 0.4,      # viscosity
+        "mu": 0.2,      # viscosity
         "p": 0.0175,     # nutrient to mass rate
         "density": 0.04, # density of agent
     }
@@ -48,14 +48,14 @@ def main():
     # Simulation Parameters:
     mass = AGENT_PARAMS["m_min"]   # Initial cell mass
     iters = 50000     # Number of loop iterations for simulation
-    num_agents = 1   # Initial cell count
+    num_agents = 12   # Initial cell count
 
     # ------------ INITIALISE NUTRIENT GRID AND AGENTS ----------------
     petri = Petri(GRID_SIZE, C_MAX, D_C, TIME_STEP)
 
     x, y = GRID_SIZE//2, GRID_SIZE//2
     for _ in range(num_agents):
-        agent = Agent(x=x, y=y, mass=mass, petri=petri, params=AGENT_PARAMS)
+        agent = Agent(x=x+rn.randint(-25,25), y=y+rn.randint(-25,25), mass=mass, petri=petri, params=AGENT_PARAMS)
         petri.add_agent(agent)
  
     # ------------ CREATE OUTPUT DIRECTORY (for GIF mode) ------------
@@ -84,9 +84,10 @@ def main():
             screen.fill("black")
             for x in range(0, GRID_SIZE):
                 for y in range(0, GRID_SIZE):
-                    pygame.draw.circle(surface=screen, center=(x*2, y*2), radius=1.0, width=0, color=pygame.Color(0,0,int(255*(petri.nutrient_grid[x, y]/2))))
+                    percent_diff = 1 - petri.nutrient_grid[x, y]/C_MAX
+                    pygame.draw.circle(surface=screen, center=(x*2, y*2), radius=1.0, width=0, color=pygame.Color(79+int(146*percent_diff),53+int(175*percent_diff),155+int(66*(percent_diff))))
             for agent in petri.agents:
-                pygame.draw.circle(surface=screen, center=(agent.x*2, agent.y*2), radius=1.0, width=0, color="red")
+                pygame.draw.circle(surface=screen, center=(agent.x*2, agent.y*2), radius=1.0, width=0, color=pygame.Color(229, 89, 52))
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
