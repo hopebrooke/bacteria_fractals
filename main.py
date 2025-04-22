@@ -58,7 +58,7 @@ def draw_ui(screen, state):
         else:
             colour = (229, 89, 52)
         pygame.draw.circle(screen, colour, (int(agent.x * 2), int(agent.y * 2)), 1)
-        #pygame.draw.circle(screen, (229, 89, 52), (int(agent.x * 2), int(agent.y * 2)), 1)
+
     
     # Draw UI buttons
     play_pause_button=Button(screen, 10, 10, 60, 30, text="Play" if state.paused else "Pause", onClick=lambda:state.toggle_pause(), inactiveColour=(0, 200, 0) if state.paused else (200, 200, 0), hoverColour=(0, 200, 0) if state.paused else (200, 200, 0))
@@ -110,7 +110,7 @@ def main():
     mode = 'gif'    # 'vis' for visualisation, 'gif' same but saves images.
 
     # Simulation state (holds all simulation data + petri dish + agents)
-    sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, num_agents, max_iters)
+    sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, SEED, num_agents, max_iters)
 
     # Create output directory for GIFs
     if mode == 'gif' and not os.path.exists(f"figures/{FOLDER}"):

@@ -6,14 +6,14 @@ import json
 
 
 class SimulationState:
-    def __init__(self, grid_size, agent_params, c_max, d_c, time_step, num_agents, max_iters):
+    def __init__(self, grid_size, agent_params, c_max, d_c, time_step, seed, num_agents, max_iters):
         self.grid_size = grid_size
         self.agent_params = agent_params.copy()
         self.c_max = c_max
         self.d_c = d_c
         self.time_step = time_step
         self.num_agents = num_agents
-
+        self.seed = seed
         self.iteration = 0
         self.max_iters = max_iters
         self.paused = True
@@ -87,6 +87,7 @@ class SimulationState:
                 "time_step": self.time_step,
                 "num_agents_initial": self.num_agents,
                 "current_iteration": self.iteration,
+                "seed" : self.seed,
             },
             "agent_params": self.agent_params,
             "agents": [
