@@ -22,6 +22,17 @@ SEED = 2246357572
 npr.seed(SEED) # only need to do it here (not for every agent move)
 
 
+
+
+
+# Draws a button on screen with text
+def draw_button(screen, text, x, y, w, h, color, text_color):
+    pygame.draw.rect(screen, color, (x, y, w, h))
+    label = pygame.font.SysFont("Arial", 10).render(text, True, text_color)
+    screen.blit(label, (x + w // 2 - label.get_width() // 2, y + h // 2 - label.get_height() // 2))
+    return pygame.Rect(x, y, w, h)
+
+
 def save_frame(screen, filename):
     # make folder if it doesn't exist
     if not os.path.exists(f"figures/{FOLDER}"):
@@ -59,12 +70,21 @@ def draw_ui(screen, state):
             colour = (229, 89, 52)
         pygame.draw.circle(screen, colour, (int(agent.x * 2), int(agent.y * 2)), 1)
 
+    # Draw UI buttons
+    if state.paused:
+        play_pause_btn = draw_button(screen, "Play", 10, 10, 60, 30, (0, 200, 0), (255, 255, 255))
+    else:
+        play_pause_btn = draw_button(screen, "Pause", 10, 10, 60, 30, (200, 200, 0), (0, 0, 0))
+        
+    reset_btn = draw_button(screen, "Reset", 80, 10, 60, 30, (200, 0, 0), (255, 255, 255))
+    save_data_btn = draw_button(screen, "Save Data", 150, 10, 80, 30, (100, 100, 200), (255, 255, 255))
+    save_pic_btn = draw_button(screen, "Save Img", 240, 10, 80, 30, (100, 0, 200), (255, 255, 255))
     
     # Draw UI buttons
-    play_pause_button=Button(screen, 10, 10, 60, 30, text="Play" if state.paused else "Pause", onClick=lambda:state.toggle_pause(), inactiveColour=(0, 200, 0) if state.paused else (200, 200, 0), hoverColour=(0, 200, 0) if state.paused else (200, 200, 0))
-    restart_button=Button(screen, 80, 10, 60, 30, text="Reset", onClick=lambda:state.reset(), inactiveColour=(200,0,0), hoverColour=(200,0,0))
-    save_data_button=Button(screen, 150, 10, 80, 30, text="Save Data", onClick=lambda:save_data(state, f"data_{state.iteration}.csv"), inactiveColour=(100,100,200), hoverColour=(100,100,100))
-    save_pic_button=Button(screen, 240, 10, 80, 30, text="Save Img", onClick=lambda:save_frame(screen, f"img_{state.iteration}"), inactiveColour=(100,0,200), hoverColour=(100,0,200))
+    # play_pause_button=Button(screen, 10, 10, 60, 30, text="Play" if state.paused else "Pause", onClick=lambda:state.toggle_pause(), inactiveColour=(0, 200, 0) if state.paused else (200, 200, 0), hoverColour=(0, 200, 0) if state.paused else (200, 200, 0))
+    # restart_button=Button(screen, 80, 10, 60, 30, text="Reset", onClick=lambda:state.reset(), inactiveColour=(200,0,0), hoverColour=(200,0,0))
+    # save_data_button=Button(screen, 150, 10, 80, 30, text="Save Data", onClick=lambda:save_data(state, f"data_{state.iteration}.csv"), inactiveColour=(100,100,200), hoverColour=(100,100,100))
+    # save_pic_button=Button(screen, 240, 10, 80, 30, text="Save Img", onClick=lambda:save_frame(screen, f"img_{state.iteration}"), inactiveColour=(100,0,200), hoverColour=(100,0,200))
 
     # Draw text labels
     font = pygame.font.SysFont("Arial", 10)
@@ -74,6 +94,8 @@ def draw_ui(screen, state):
     screen.blit(agent_label, (430, 10))
     seed_label = font.render(f"Seed: {SEED}", True, (255, 255, 255))
     screen.blit(seed_label, (330, 10))
+    
+    return play_pause_btn, reset_btn, save_data_btn, save_pic_btn
 
 
 
@@ -127,8 +149,8 @@ def main():
     pic_interval = 1000
     
     # First screen
-    draw_ui(screen, sim)
-    pygame_widgets.update([])
+    play_pause_btn, reset_btn, save_data_btn, save_pic_btn = draw_ui(screen, sim)
+    # pygame_widgets.update([])
     pygame.display.flip()
 
     # Continue while there are iterations left and the simulation is running
@@ -139,10 +161,18 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 break
-            elif event.type != pygame.MOUSEMOTION:
-                # Update screen for every mouse click/ keyboard press etc.
-                draw_ui(screen, sim)
-                pygame_widgets.update(events)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = event.pos
+                if play_pause_btn.collidepoint(mouse_x, mouse_y):
+                    sim.paused = not sim.paused
+                elif reset_btn.collidepoint(mouse_x, mouse_y):
+                    sim.reset()
+                elif save_data_btn.collidepoint(mouse_x, mouse_y):
+                    save_data(sim, f"data_{sim.iteration}.csv")
+                elif save_pic_btn.collidepoint(mouse_x, mouse_y):
+                    save_frame(screen, f"img_{sim.iteration}.png")                    
+                play_pause_btn, reset_btn, save_data_btn, save_pic_btn = draw_ui(screen, sim)
+                # pygame_widgets.update(events)
                 pygame.display.flip()
 
         # Update if simulation is not paused
@@ -152,8 +182,8 @@ def main():
             # Update pygame display every 100 iterations
             if sim.iteration % (draw_interval)==0:
                 screen.fill("black")
-                draw_ui(screen, sim)
-                pygame_widgets.update(events)
+                play_pause_btn, reset_btn, save_data_btn, save_pic_btn = draw_ui(screen, sim)
+                # pygame_widgets.update(events)
                 pygame.display.flip()
                 
                 # Save image every 500 iterations
