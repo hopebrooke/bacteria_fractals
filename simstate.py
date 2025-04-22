@@ -2,6 +2,8 @@
 from agent import Agent
 from petri import Petri
 import numpy.random as npr
+import json
+
 
 class SimulationState:
     def __init__(self, grid_size, agent_params, c_max, d_c, time_step, num_agents, max_iters):
@@ -34,6 +36,11 @@ class SimulationState:
         self._init_petri()
         self.paused = True
 
+    # Toggle pause state
+    def toggle_pause(self):
+        self.paused = not self.paused
+        
+        
     # Make a step in the simulation
     def update(self):
         if self.paused:
@@ -68,3 +75,30 @@ class SimulationState:
             return
         # Start from beginning if parameters change
         self.reset()
+
+
+    def save_data(self, filename):
+        data = {
+            "simulation_params": {
+                "grid_size": self.grid_size,
+                "c_max": self.c_max,
+                "d_c": self.d_c,
+                "time_step": self.time_step,
+                "num_agents_initial": self.num_agents,
+                "current_iteration": self.iteration,
+            },
+            "agent_params": self.agent_params,
+            "agents": [
+                {
+                    "x": agent.x,
+                    "y": agent.y,
+                    "mass": agent.mass
+                }
+                for agent in self.petri.agents
+            ]
+        }   
+
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+
+        
