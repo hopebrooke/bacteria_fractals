@@ -7,14 +7,14 @@ class Petri:
         self.C_max = C_max
         self.D_c = D_c
         self.time_step = time_step
-        self.agents = np.array([])
+        self.agents = []
 
         self.nutrient_grid = np.full((grid_size, grid_size), C_max)
 
         self.laplacian_kernel = np.array([[0, 1, 0],
                                           [1, -4, 1],
                                           [0, 1, 0]])
-
+        
     def laplacian(self):       
         return convolve(self.nutrient_grid, self.laplacian_kernel, mode="nearest", cval=0.0)
 
@@ -28,4 +28,4 @@ class Petri:
         return self.nutrient_grid[x, y]
     
     def add_agent(self, agent):
-        self.agents = np.append(self.agents, agent)
+        self.agents.append(agent)
