@@ -35,7 +35,11 @@ def draw_ui(screen, state):
             pygame.draw.circle(screen, (79+int(146*percent_diff),53+int(175*percent_diff),155+int(66*(percent_diff))), (x * 2, y * 2), 1)
     # Draw agents
     for agent in state.petri.agents:
-        pygame.draw.circle(screen, (229, 89, 52), (int(agent.x * 2), int(agent.y * 2)), 1)
+        if agent.imotile:
+            colour = (0,0,0)
+        else:
+            colour = (229, 89, 52)
+        pygame.draw.circle(screen, colour, (int(agent.x * 2), int(agent.y * 2)), 1)
     # Draw UI buttons
     if state.paused:
         play_pause_btn = draw_button(screen, "Play", 10, 10, 60, 30, (0, 200, 0), (255, 255, 255))
@@ -59,22 +63,20 @@ def main():
  
     # Nutrient Grid Parameters:
     GRID_SIZE = 350  # Square grid dimensions
-    TIME_STEP = 0.01 # Stepwise diffusion rate per loop iteration
-    C_MAX = 1.0      # Maximum nutrient value on a given square
-    D_C = 0.05      # Rate of diffusion
-    
-    # Agent Parameters:
-    AGENT_PARAMS = {
-        "r_max": 0.1,    # maximum reaction rate
-        "K_m": 0.25,      # michaelis menten constant
-        "m_min": 1,      # minimum mass of agent
-        "delta_H": 12,  # mass to energy rate
-        "F_d": 0.5,    # drag force
-        "mu": 0.8,      # viscosity
-        "p": 0.01,     # nutrient to mass rate
-        "density": 0.08, # density of agent
-    }
+    TIME_STEP = 1 # Stepwise diffusion rate per loop iteration
+    C_MAX = 1.0
+    D_C = 0.0498
 
+    AGENT_PARAMS = {
+        "r_max": 0.0498,
+        "K_m": 0.25,
+        "m_min": 1,
+        "delta_H": 10,
+        "F_d": 0.5,
+        "mu": 0.8,
+        "p": 0.015,
+        "density": 0.08,
+    }
 
     # Paper values
     min_r = math.sqrt((AGENT_PARAMS["m_min"]/AGENT_PARAMS["density"])/math.pi)
@@ -85,7 +87,7 @@ def main():
     print(f'D: {(D_C)/(min_r*v_max)}')
     print(f'E: {(AGENT_PARAMS["F_d"]*min_r)/(AGENT_PARAMS["m_min"]*AGENT_PARAMS["delta_H"])}')
     # Simulation Parameters:
-    max_iters = 50000     # Number of loop iterations for simulation
+    max_iters = 500000     # Number of loop iterations for simulation
     num_agents = 1   # Initial cell count
     mode = 'gif'    # 'vis' for visualisation, 'gif' same but saves images.
 
@@ -135,7 +137,7 @@ def main():
             sim.update() # update agents + grid
             
             draw_interval = 100
-            pic_interval = 1000
+            pic_interval = 100
             # Update pygame display every 100 iterations
             if sim.iteration % (draw_interval)==0:
                 screen.fill("black")

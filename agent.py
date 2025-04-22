@@ -21,6 +21,7 @@ class Agent:
         self.mu = params["mu"]
         self.p = params["p"]
         self.density = params["density"]
+        self.imotile = False
 
         self.size = mass / self.density
         self.radius = math.sqrt(self.size / PI)
@@ -46,11 +47,13 @@ class Agent:
     # Move if big enough
     def move(self):
         if self.m_min <= self.mass and self.mass < self.m_max: 
+            if self.imotile == True:
+                self.imotile = False
             if  self.time_to_change > 0:
-                scaling_factor = self.petri.grid_size // 5
+                # scaling_factor = self.petri.grid_size // 5
+                scaling_factor = 1
                 dx = self.velocity * math.cos(self.theta) * scaling_factor
                 dy = self.velocity * math.sin(self.theta) * scaling_factor
-                # print(f'{dx}, {dy}')
                 
                 self.x = max(0, min(self.x + dx, self.petri.grid_size - 1))
                 self.y = max(0, min(self.y + dy, self.petri.grid_size - 1))
@@ -63,7 +66,8 @@ class Agent:
                 # npr.seed(self.seed)
                 self.theta = npr.uniform(0, 2 * PI)
                 self.time_to_change = npr.poisson(10)
-
+        elif self.m_min > self.mass and self.imotile == False:
+            self.imotile = True
 
     # Replicate if over mass_max
     def replicate(self):
