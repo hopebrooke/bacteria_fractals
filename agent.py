@@ -42,13 +42,15 @@ class Agent:
         self.petri.consume_nutrient(round(self.x), round(self.y), nutrients_taken)
         
         self.update_properties()
+        if self.m_min > self.mass:
+            self.imotile = True
+        else:
+            self.imotile = False
 
 
     # Move if big enough
     def move(self):
         if self.m_min <= self.mass and self.mass < self.m_max: 
-            if self.imotile == True:
-                self.imotile = False
             if  self.time_to_change > 0:
                 # scaling_factor = self.petri.grid_size // 5
                 scaling_factor = 1
@@ -66,8 +68,6 @@ class Agent:
                 # npr.seed(self.seed)
                 self.theta = npr.uniform(0, 2 * PI)
                 self.time_to_change = npr.poisson(10)
-        elif self.m_min > self.mass and self.imotile == False:
-            self.imotile = True
 
     # Replicate if over mass_max
     def replicate(self):

@@ -39,11 +39,12 @@ class SimulationState:
         if self.paused:
             return
         for agent in self.petri.agents:
-            agent.move()
             agent.eat()
-            new_agent = agent.replicate()
-            if new_agent:
-                self.petri.add_agent(new_agent)
+            if not agent.imotile:
+                agent.move()
+                new_agent = agent.replicate()
+                if new_agent:
+                    self.petri.add_agent(new_agent)
         self.petri.diffuse()
         self.iteration += 1
 

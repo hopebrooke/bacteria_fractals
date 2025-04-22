@@ -14,6 +14,7 @@ FOLDER = f'GIF_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 # Generate Seed for replicable results
 SEED = npr.randint(0,1000000000)
+SEED = 2246357572
 npr.seed(SEED) # only need to do it here (not for every agent move)
 
 
@@ -62,7 +63,7 @@ def draw_ui(screen, state):
 def main():
  
     # Nutrient Grid Parameters:
-    GRID_SIZE = 350  # Square grid dimensions
+    GRID_SIZE = 500  # Square grid dimensions
     TIME_STEP = 1 # Stepwise diffusion rate per loop iteration
     C_MAX = 1.0
     D_C = 0.0498
@@ -74,7 +75,7 @@ def main():
         "delta_H": 10,
         "F_d": 0.5,
         "mu": 0.8,
-        "p": 0.015,
+        "p": 0.01,
         "density": 0.08,
     }
 
@@ -103,12 +104,14 @@ def main():
 
     # Start simulation
     pygame.init()
+    
     screen = pygame.display.set_mode((GRID_SIZE*2, GRID_SIZE*2))
     clock = pygame.time.Clock()
     running = True
 
     # Draw first screen
     play_pause_btn, reset_btn = draw_ui(screen, sim)
+
     pygame.display.flip()
 
     # Continue while there are iterations left and the simulation is running
@@ -137,7 +140,7 @@ def main():
             sim.update() # update agents + grid
             
             draw_interval = 100
-            pic_interval = 100
+            pic_interval = 1000
             # Update pygame display every 100 iterations
             if sim.iteration % (draw_interval)==0:
                 screen.fill("black")
