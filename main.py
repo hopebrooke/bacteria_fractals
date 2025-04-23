@@ -16,7 +16,7 @@ from pygame_widgets.textbox import TextBox
 
 
 PI = math.pi
-FOLDER = f'DATA_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
+folder = f'DATA_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 # Generate Seed for replicable results
 SEED = npr.randint(0,100)
@@ -47,9 +47,9 @@ slider_labels = {
 
 # Save the current frame if 'save pic' button pressed
 def save_frame(screen, filename):
-    if not os.path.exists(f"figures/{FOLDER}"):
-        os.makedirs(f"figures/{FOLDER}")
-    filename = f"figures/{FOLDER}/{filename}"
+    if not os.path.exists(f"figures/{folder}"):
+        os.makedirs(f"figures/{folder}")
+    filename = f"figures/{folder}/{filename}"
     if not filename.endswith('.png'):
         filename += '.png'
     pygame.image.save(screen, filename)
@@ -58,9 +58,9 @@ def save_frame(screen, filename):
 
 # Save the simulation data to json if 'save data' button pressed
 def save_data(state, filename):
-    if not os.path.exists(f"figures/{FOLDER}"):
-        os.makedirs(f"figures/{FOLDER}")
-    state.save_data(f"figures/{FOLDER}/{filename}")    
+    if not os.path.exists(f"figures/{folder}"):
+        os.makedirs(f"figures/{folder}")
+    state.save_data(f"figures/{folder}/{filename}")    
     
 
 # Update button text (eg. play -> pause)
@@ -83,6 +83,11 @@ def reset(state):
     for key in sliders:
         state.set_params(key, sliders[key].getValue())
     state.reset()
+    global folder
+    folder = f'DATA_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}' # change folder    
+    # Create output directory for GIFs
+    if not os.path.exists(f"figures/{folder}"):
+        os.makedirs(f"figures/{folder}")
     set_button_text(buttons['play_pause'], "Play" if state.paused else "Pause") # reset changes state to paused so update button
    
 
@@ -306,8 +311,8 @@ def main():
     sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, SEED, num_agents)
 
     # Create output directory for GIFs
-    if mode == 'gif' and not os.path.exists(f"figures/{FOLDER}"):
-        os.makedirs(f"figures/{FOLDER}")
+    if not os.path.exists(f"figures/{folder}"):
+        os.makedirs(f"figures/{folder}")
 
     # Start simulation
     pygame.init()
@@ -356,7 +361,7 @@ def main():
                 pygame.display.update(grid_rect)
                 # Save image every 500 iterations
                 if mode == 'gif' and sim.iteration % (pic_interval)==0:
-                    pygame.image.save(screen, f"figures/{FOLDER}/frame_{sim.iteration}.png")
+                    pygame.image.save(screen, f"figures/{folder}/frame_{sim.iteration}.png")
                     
         clock.tick(60)
         
