@@ -6,7 +6,7 @@ import json
 
 
 class SimulationState:
-    def __init__(self, grid_size, agent_params, c_max, d_c, time_step, seed, num_agents, max_iters):
+    def __init__(self, grid_size, agent_params, c_max, d_c, time_step, seed, num_agents):
         self.grid_size = grid_size
         self.agent_params = agent_params.copy()
         self.c_max = c_max
@@ -15,7 +15,6 @@ class SimulationState:
         self.num_agents = num_agents
         self.seed = seed
         self.iteration = 0
-        self.max_iters = max_iters
         self.paused = True
         self.running = True
 
@@ -55,7 +54,8 @@ class SimulationState:
         self.petri.diffuse()
         self.iteration += 1
 
-    # Not used yet, but will be used for changing simulation parameters
+
+    # Updates parameters of the simulation
     def set_params(self, key, value):
         if key in self.agent_params:
             self.agent_params[key] = value
