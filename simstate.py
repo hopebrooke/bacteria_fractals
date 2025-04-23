@@ -56,7 +56,7 @@ class SimulationState:
         self.iteration += 1
 
     # Not used yet, but will be used for changing simulation parameters
-    def apply_param_change(self, key, value):
+    def set_params(self, key, value):
         if key in self.agent_params:
             self.agent_params[key] = value
         elif key == "d_c":
@@ -69,8 +69,9 @@ class SimulationState:
             self.num_agents = value
         elif key == "c_max":
             self.c_max = value
-        elif key == "iters":
-            self.iters = value
+        elif key == 'seed':
+            self.seed = value
+            npr.seed(value)
         else: 
             print(f"Invalid parameter key: {key}")
             return
@@ -99,8 +100,5 @@ class SimulationState:
                 for agent in self.petri.agents
             ]
         }   
-
         with open(filename, 'w') as f:
             json.dump(data, f, indent=4)
-
-        
