@@ -26,6 +26,22 @@ buttons ={}
 sliders = {}
 slider_outputs = {}
 
+slider_labels = {
+    "c_max": "Max Nutrients (Cₘₐₓ)",
+    "d_c": "Diffusion Rate (Dc)",
+    "time_step": "Time Step (Δt)",
+    "num_agents": "No. Agents",
+    "seed": "Random Seed",
+    "r_max": "Max Reaction (rₘₐₓ)",
+    "K_m": "M.M. Const (Kₘ)",
+    "m_min": "Min Mass (mₘᵢₙ)",
+    "delta_H": "Mass to Energy (ΔH)",
+    "F_d": "Drag Force (F_d)",
+    "mu": "Viscosity (μ)",
+    "p": "Nutrient to Mass (p)",
+    "density": "Agent Density (ρ)"
+}
+
 def save_frame(screen, filename):
     # make folder if it doesn't exist
     if not os.path.exists(f"figures/{FOLDER}"):
@@ -67,16 +83,16 @@ def reset(state):
 def init_widgets(screen,state):
     offset = state.grid_size * 2
     # Draw UI buttons
-    buttons['play_pause']=Button(screen, offset+10, 10, 80, 30, text="Play" if state.paused else "Pause", onClick=lambda:play_pause(state), inactiveColour=(0, 200, 0) if state.paused else (200, 200, 0), hoverColour=(0, 200, 0) if state.paused else (200, 200, 0))
-    buttons['restart']=Button(screen, offset+100, 10, 80, 30, text="Reset", onClick=lambda:reset(state), inactiveColour=(200,0,0), hoverColour=(200,0,0))
-    buttons['save_data']=Button(screen, offset+10, 50, 80, 30, text="Save Data", onClick=lambda:save_data(state, f"data_{state.iteration}.csv"), inactiveColour=(100,100,200), hoverColour=(100,100,100))
-    buttons['save_pic']=Button(screen, offset+100, 50, 80, 30, text="Save Img", onClick=lambda:save_frame(screen, f"img_{state.iteration}"), inactiveColour=(100,0,200), hoverColour=(100,0,200))
+    buttons['play_pause']=Button(screen, offset+10, 10, 80, 30, text="Play" if state.paused else "Pause", onClick=lambda:play_pause(state), inactiveColour=(21,122,110), hoverColour=(15, 87, 80), radius=12, textColour=(225,228,221), pressedColour=(9,52,48))
+    buttons['restart']=Button(screen, offset+100, 10, 80, 30, text="Reset", onClick=lambda:reset(state), inactiveColour=(21,122,110), hoverColour=(15, 87, 80), radius=12, textColour=(225,228,221), pressedColour=(9,52,48))
+    buttons['save_data']=Button(screen, offset+10, 50, 80, 30, text="Save Data", onClick=lambda:save_data(state, f"data_{state.iteration}.csv"), inactiveColour=(21,122,110), hoverColour=(15, 87, 80), radius=12, textColour=(225,228,221), pressedColour=(9,52,48))
+    buttons['save_pic']=Button(screen, offset+100, 50, 80, 30, text="Save Img", onClick=lambda:save_frame(screen, f"img_{state.iteration}"), inactiveColour=(21,122,110), hoverColour=(15, 87, 80), radius=12, textColour=(225,228,221), pressedColour=(9,52,48))
     
     # Set values to help spacing of sliders/ text boxes etc.
     s_width = 80
     s_height = 10
     s_x_indent = offset + 50
-    s_y_indent = 115
+    s_y_indent = 120
     tb_width = 50
     tb_height = 30
     tb_x_indent = s_x_indent + 90
@@ -86,70 +102,89 @@ def init_widgets(screen,state):
     n = 0  # Number of sliders
     spacing = 55
 
-    sliders['time_step'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                                  min=1, max=5, step=1, colour=(100,100,100), handleColour=(50,50,50), initial=state.time_step)
-    slider_outputs['time_step'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
-    slider_outputs['time_step'].disable()  # Act as label instead of textbox
-    n += 1
-    sliders['num_agents'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                                   min=1, max=30, step=1, colour=(100,100,100), handleColour=(50,50,50), initial=state.num_agents)
-    slider_outputs['num_agents'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
-    slider_outputs['num_agents'].disable()  # Act as label instead of textbox
-    n += 1
+
     sliders['seed'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                             min=0, max=100, step=1, colour=(100,100,100), handleColour=(50,50,50), initial=state.seed)
-    slider_outputs['seed'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                             min=0, max=100, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.seed)
+    slider_outputs['seed'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                     textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['seed'].disable()  # Act as label instead of textbox
     n += 1
     
+    sliders['num_agents'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
+                                   min=1, max=30, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.num_agents)
+    slider_outputs['num_agents'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                           textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
+    slider_outputs['num_agents'].disable()  # Act as label instead of textbox
+    n += 1
+    
+    sliders['time_step'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
+                                  min=1, max=5, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.time_step)
+    slider_outputs['time_step'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                          textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
+    slider_outputs['time_step'].disable()  # Act as label instead of textbox
+    n += 1
+    
     sliders['c_max'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                              min=0.5, max=5, step=0.5, colour=(100,100,100), handleColour=(50,50,50), initial=state.c_max)
-    slider_outputs['c_max'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                              min=0.5, max=5, step=0.5, colour=(100,100,100), handleColour=(30,21,60), initial=state.c_max)
+    slider_outputs['c_max'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                      textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['c_max'].disable()  # Act as label instead of textbox
     n += 1
+    
     sliders['d_c'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                            min=0.01, max=0.1, step=0.01, colour=(100,100,100), handleColour=(50,50,50), initial=state.d_c)
-    slider_outputs['d_c'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                            min=0.01, max=0.1, step=0.01, colour=(100,100,100), handleColour=(30,21,60), initial=state.d_c)
+    slider_outputs['d_c'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                    textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['d_c'].disable()  # Act as label instead of textbox
+    
     n += 1
+    
     sliders['r_max'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                              min=0.01, max=0.1, step=0.01, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['r_max'])
-    slider_outputs['r_max'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                              min=0.01, max=0.1, step=0.01, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['r_max'])
+    slider_outputs['r_max'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                      textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['r_max'].disable()  # Act as label instead of textbox
     n += 1
     sliders['K_m'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                            min=0.1, max=1, step=0.01, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['K_m'])
-    slider_outputs['K_m'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                            min=0.1, max=1, step=0.01, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['K_m'])
+    slider_outputs['K_m'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                    textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['K_m'].disable()  # Act as label instead of textbox
     n += 1
     sliders['m_min'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                              min=0.5, max=5, step=0.5, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['m_min'])
-    slider_outputs['m_min'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                              min=0.5, max=5, step=0.5, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['m_min'])
+    slider_outputs['m_min'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                      textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['m_min'].disable()  # Act as label instead of textbox
     n += 1
     sliders['delta_H'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                                min=1, max=20, step=1, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['delta_H'])
-    slider_outputs['delta_H'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                                min=1, max=20, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['delta_H'])
+    slider_outputs['delta_H'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                        textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['delta_H'].disable()  # Act as label instead of textbox
     n += 1
     sliders['F_d'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                            min=0.2, max=1.5, step=0.1, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['F_d'])
-    slider_outputs['F_d'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                            min=0.2, max=1.5, step=0.1, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['F_d'])
+    slider_outputs['F_d'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                    textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['F_d'].disable()  # Act as label instead of textbox
     n += 1    
     sliders['mu'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                           min=0.5, max=2, step=0.1, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['mu'])
-    slider_outputs['mu'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                           min=0.5, max=2, step=0.1, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['mu'])
+    slider_outputs['mu'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                   textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['mu'].disable()  # Act as label instead of textbox
     n += 1
     sliders['p'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                          min=0.005, max=0.03, step=0.005, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['p'])
-    slider_outputs['p'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                          min=0.005, max=0.03, step=0.005, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['p'])
+    slider_outputs['p'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                  textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['p'].disable()  # Act as label instead of textbox
     n += 1
     sliders['density'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                                min=0.02, max=0.2, step=0.02, colour=(100,100,100), handleColour=(50,50,50), initial=state.agent_params['density'])
-    slider_outputs['density'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize)
+                                min=0.02, max=0.2, step=0.02, colour=(100,100,100), handleColour=(30,21,60), initial=state.agent_params['density'])
+    slider_outputs['density'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+                                        textColour=(30,21,60), borderColour=(30,21,60), colour=(225,228,221))
     slider_outputs['density'].disable()  # Act as label instead of textbox
     n += 1    
 
@@ -170,13 +205,14 @@ def draw_grid(screen, state):
             colour = (229, 89, 52)
         pygame.draw.circle(screen, colour, (int(agent.x * 2), int(agent.y * 2)), 1)
     # Draw text labels
-    font = pygame.font.SysFont("Arial", 10)
+    midpoint = state.grid_size
+    font = pygame.font.SysFont("Arial", 15)
     iter_label = font.render(f"Iterations: {state.iteration}", True, (255, 255, 255))
-    screen.blit(iter_label, (550, 10))
+    screen.blit(iter_label, (midpoint +100, 10))
     agent_label = font.render(f"Agents: {len(state.petri.agents)}", True, (255, 255, 255))
-    screen.blit(agent_label, (470, 10))
+    screen.blit(agent_label, (midpoint - 50, 10))
     seed_label = font.render(f"Seed: {SEED}", True, (255, 255, 255))
-    screen.blit(seed_label, (370, 10))
+    screen.blit(seed_label, (midpoint-200, 10))
    
    
 def draw_ui(screen, state):
@@ -184,20 +220,25 @@ def draw_ui(screen, state):
     panel_width = width - state.grid_size*2
     offset = state.grid_size * 2
     # Draw UI panel
-    screen.fill((200, 200, 200), rect=(offset, 0, panel_width, height))
+    screen.fill((225,228,221), rect=(offset, 0, panel_width, height))
     
     # Draw slider labels
     font = pygame.font.SysFont("Arial", 12)
     n = 0
     for key in slider_outputs:
-        label = font.render(key.capitalize()+':', True, (0, 0, 0))
+        label_text = slider_labels.get(key, key)
+        label = font.render(f'{label_text}: ', True, (30,21,60))
         screen.blit(label, (offset+10, 95+n*55))  
         n +=1      
+        # if key == 'd_c':
+        #     n+=1
+        #     label = font.render(f'Agent Parameters: ', True, (30,21,60))
+        #     screen.blit(label, (offset+5, 75+n*55))  
     # Update slider texts
     for key in slider_outputs:
         slider_outputs[key].setText(f"{sliders[key].getValue():.2f}")
     
-    font = pygame.font.SysFont("Arial", 12)
+    font = pygame.font.SysFont("Arial", 15)
 
     # get slider vals
     m_min = sliders['m_min'].getValue()
@@ -221,10 +262,9 @@ def draw_ui(screen, state):
     vals['E'] = (F_d*min_r)/(m_min*delta_H)
     i = 0
     for key in vals:
-        label = font.render(f'{key}:  {vals[key]:.2f}', True, (0, 0, 0))
-        screen.blit(label, (offset+10, 100 + n*55 + i*20))  
+        label = font.render(f'{key}:  {vals[key]:.2f}', True, (30,21,60))
+        screen.blit(label, (offset+10, 100 + n*55 + i*30))  
         i +=1
-
 
 def main():
     # Nutrient Grid Parameters:
