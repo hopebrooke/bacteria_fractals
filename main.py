@@ -69,7 +69,7 @@ def draw_ui(screen, state):
             colour = (0,0,0)
         else:
             colour = (229, 89, 52)
-        pygame.draw.circle(screen, colour, (int(agent.x * 2), int(agent.y * 2)), 1)
+        pygame.draw.circle(screen, colour, (int(agent.x)*2, int(agent.y)*2), 1)
         #screen.set_at((int(agent.x), int(agent.y)), colour)
 
     # Draw UI buttons
@@ -145,7 +145,7 @@ def main():
     # Start simulation
     pygame.init()
     
-    screen = pygame.display.set_mode((GRID_SIZE, GRID_SIZE))
+    screen = pygame.display.set_mode((GRID_SIZE*2, GRID_SIZE*2))
     clock = pygame.time.Clock()
     running = True
 
