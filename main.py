@@ -128,7 +128,7 @@ def init_widgets(screen,state):
     slider_outputs['seed'].disable() 
     n += 1
     sliders['num_agents'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                                   min=1, max=30, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.num_agents)
+                                   min=1, max=50, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.num_agents)
     slider_outputs['num_agents'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
                                            textColour=(30,21,60), borderThickness=0, colour=(225,228,221))
     slider_outputs['num_agents'].disable() 
