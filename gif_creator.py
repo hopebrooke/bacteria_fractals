@@ -1,19 +1,23 @@
 import imageio.v2 as imageio
-from natsort import natsorted 
+from natsort import natsorted
 import os
+import argparse
 
-FOLDER = 'DATA_20250423-172441'
-images = []
+# cli
+parser = argparse.ArgumentParser(description='Create a GIF from PNG frames in a folder.')
+parser.add_argument('folder', help='Name of the folder inside figures/ to process')
+args = parser.parse_args()
+
+FOLDER = args.folder
 images_path = f'figures/{FOLDER}/'
 
-if not os.path.exists(f"gifs/"):
-        os.makedirs(f"gifs/")
+#create gifs/
+os.makedirs("gifs/", exist_ok=True)
 
 with imageio.get_writer(f'gifs/{FOLDER}.gif', mode='I') as writer:
     for image in natsorted(os.listdir(images_path)):
-        # make sure file is a png that starts with 'frame'
-        if not image.endswith('.png') and not image.startswith('frame'):
+        if not image.endswith('.png') or not image.startswith('frame'):
             continue
-        
-        img = imageio.imread(images_path+image)
+
+        img = imageio.imread(images_path + image)
         writer.append_data(img)
