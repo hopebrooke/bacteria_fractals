@@ -9,7 +9,7 @@ class Petri:
         self.time_step = time_step
         self.agents = []
 
-        self.nutrient_grid = np.full((grid_size, grid_size), C_max)
+        self.nutrient_grid = np.full((grid_size, grid_size), C_max, dtype=float)
 
         self.laplacian_kernel = np.array([[0, 1, 0],
                                           [1, -4, 1],
