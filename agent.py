@@ -52,10 +52,8 @@ class Agent:
     def move(self):
         if self.m_min <= self.mass and self.mass < self.m_max: 
             if  self.time_to_change > 0:
-                # scaling_factor = self.petri.grid_size // 5
-                scaling_factor = 1
-                dx = self.velocity * math.cos(self.theta) * scaling_factor
-                dy = self.velocity * math.sin(self.theta) * scaling_factor
+                dx = self.velocity * math.cos(self.theta)
+                dy = self.velocity * math.sin(self.theta)
                 
                 self.x = max(0, min(self.x + dx, self.petri.grid_size - 1))
                 self.y = max(0, min(self.y + dy, self.petri.grid_size - 1))
