@@ -13,6 +13,7 @@ import pygame_widgets
 from pygame_widgets.button import Button
 from pygame_widgets.slider import Slider
 from pygame_widgets.textbox import TextBox
+from pygame_widgets.toggle import Toggle
 
 
 PI = math.pi
@@ -20,13 +21,14 @@ folder = f'DATA_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 # Generate Seed for replicable results
 SEED = npr.randint(0,100)
-
+SEED = 397944378
 npr.seed(SEED) # only need to do it here (not for every agent move)
 
 # Global dicts to hold widgets
 buttons ={}
 sliders = {}
 slider_outputs = {}
+toggles = {}
 
 # Mapping from parameter names to display names
 slider_labels = {
@@ -109,7 +111,7 @@ def init_widgets(screen,state):
     # Sliders:
     s_width = 80 # slider width
     s_height = 10 # slider height
-    s_x_indent = offset + 50 # slider x position indent
+    s_x_indent = offset +50 # slider x position indent
     s_y_indent = 120 # slider y position indent
     # Textboxes
     tb_width = 50 # text box width
@@ -121,10 +123,12 @@ def init_widgets(screen,state):
     n = 0  # Number of parameters added
     spacing = 55 # Spacing between parameters
     
+    width, height = screen.get_size()
+
     # Create sliders and text boxes for each parameter
-    sliders['seed'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
-                             min=0, max=100, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.seed)
-    slider_outputs['seed'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
+    sliders['seed'] = Slider(screen, s_x_indent-10, s_y_indent+n*spacing, s_width, s_height, 
+                             min=0, max=400000000, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.seed)
+    slider_outputs['seed'] = TextBox(screen,tb_x_indent-10, tb_y_indent+n*spacing, tb_width+50, tb_height, fontSize=tb_fontsize, 
                                      textColour=(30,21,60), borderThickness=0, colour=(225,228,221))
     slider_outputs['seed'].disable() 
     n += 1
@@ -201,6 +205,8 @@ def init_widgets(screen,state):
     slider_outputs['density'].disable() 
     n += 1    
 
+    toggles['mode'] = Toggle(screen, offset+((width-offset)//2)+10, height-23, 20, 10, startOn=True, onColour=(100,100,100),offColour=(100,100,100), handleOffColour=(30,21,60), handleOnColour=(21,122,110))
+
     
     
 # Draw the bacteria/nutrient grid on the screen
@@ -227,7 +233,7 @@ def draw_grid(screen, state):
     agent_label = font.render(f"Agents: {len(state.petri.agents)}", True, (255, 255, 255))
     screen.blit(agent_label, (midpoint - 50, 10))
     seed_label = font.render(f"Seed: {state.seed}", True, (255, 255, 255))
-    screen.blit(seed_label, (midpoint-200, 10))
+    screen.blit(seed_label, (midpoint-220, 10))
    
 
 # Draw the UI panel on the right side of the screen
@@ -247,8 +253,11 @@ def draw_ui(screen, state):
         n +=1      
     # Update all slider texts based on slider values
     for key in slider_outputs:
-        slider_outputs[key].setText(f"{sliders[key].getValue():.2f}")
-    
+        if key != "seed" and key != "p":
+            slider_outputs[key].setText(f"{sliders[key].getValue():.2f}")
+        else:
+            slider_outputs[key].setText(f"{sliders[key].getValue()}")
+
     # Calculate ABCDE values based on sliders
     m_min = sliders['m_min'].getValue()
     density = sliders['density'].getValue()
@@ -275,8 +284,11 @@ def draw_ui(screen, state):
     i += 1
     for key in vals:
         label = font.render(f'{key}:  {vals[key]:.2f}', True, (30,21,60))
-        screen.blit(label, (offset+(panel_width/2 - 40), 100 + n*55 + i*30))  
+        screen.blit(label, (offset+(panel_width//2 - 40), 100 + n*55 + i*30))  
         i +=1
+    label = font.render('Gif mode:', True, (30,21,60))
+
+    screen.blit(label, ((offset+45), height-25))
 
 
 
@@ -315,7 +327,7 @@ def main():
     max_iters = 300000     # Number of loop iterations for simulation
     max_agents = 30000
     num_agents = 50   # Initial cell count
-    mode = 'vis'    # 'vis' for visualisation, 'gif' same but saves images.
+    mode = 'gif'    # 'vis' for visualisation, 'gif' same but saves images.
 
     # Simulation state (holds all simulation data + petri dish + agents)
     sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, SEED, num_agents, max_iters)
@@ -327,7 +339,7 @@ def main():
 
     # Start simulation
     pygame.init()
-    panel_width = 200 # UI on right
+    panel_width = 210 # UI on right
     screen = pygame.display.set_mode((GRID_SIZE*2 + panel_width, GRID_SIZE*2))
     clock = pygame.time.Clock()
     running = True
@@ -363,6 +375,10 @@ def main():
                 draw_grid(screen, sim)
                 draw_ui(screen, sim)
                 pygame.display.update(grid_rect)
+                if toggles['mode'].value == False:
+                    mode = 'vis'
+                else:
+                    mode = 'gif'
         pygame.display.update(panel_rect)
         
 
