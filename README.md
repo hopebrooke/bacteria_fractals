@@ -42,6 +42,4 @@ Petri class has nutrient/environment attributes, methods for diffusion, and also
 
 The UI updating/functions are in main.
 
-## Statement Of Contribution
-
 
