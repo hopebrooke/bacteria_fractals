@@ -91,7 +91,7 @@ def draw_ui(screen, state):
     # Draw text labels
     font = pygame.font.SysFont("Arial", 10)
     iter_label = font.render(f"Iterations: {state.iteration}", True, (255, 255, 255))
-    screen.blit(iter_label, (10, 400))
+    screen.blit(iter_label, (530, 10))
     agent_label = font.render(f"Agents: {len(state.petri.agents)}", True, (255, 255, 255))
     screen.blit(agent_label, (430, 10))
     seed_label = font.render(f"Seed: {SEED}", True, (255, 255, 255))
@@ -136,7 +136,6 @@ def main():
 
     # Simulation state (holds all simulation data + petri dish + agents)
     sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, SEED, num_agents, max_iters)
-    sim.paused = False
 
     # Create output directory for GIFs
     if mode == 'gif' and not os.path.exists(f"figures/{FOLDER}"):
