@@ -33,7 +33,7 @@ To create a GIF out of a simulation:
 
 ```python3 gif_creator.py <image_folder>```
 
-The created gif will be saved in `gifs/`.
+The created gif will be saved in `gifs/<image_folder>/`.
 
 ## Fractal Analysis
 
