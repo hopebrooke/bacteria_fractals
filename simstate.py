@@ -6,7 +6,7 @@ import json
 
 
 class SimulationState:
-    def __init__(self, grid_size, agent_params, c_max, d_c, time_step, seed, num_agents):
+    def __init__(self, grid_size, agent_params, c_max, d_c, time_step, seed, num_agents, max_iters):
         self.grid_size = grid_size
         self.agent_params = agent_params.copy()
         self.c_max = c_max
@@ -17,7 +17,7 @@ class SimulationState:
         self.iteration = 0
         self.paused = True
         self.running = True
-
+        self.max_iters = max_iters
         self._init_petri()
 
     # Initialize the Petri dish with agents

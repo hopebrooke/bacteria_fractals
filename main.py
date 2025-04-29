@@ -226,7 +226,7 @@ def draw_grid(screen, state):
     screen.blit(iter_label, (midpoint +100, 10))
     agent_label = font.render(f"Agents: {len(state.petri.agents)}", True, (255, 255, 255))
     screen.blit(agent_label, (midpoint - 50, 10))
-    seed_label = font.render(f"Seed: {SEED}", True, (255, 255, 255))
+    seed_label = font.render(f"Seed: {state.seed}", True, (255, 255, 255))
     screen.blit(seed_label, (midpoint-200, 10))
    
 
