@@ -20,6 +20,7 @@ folder = f'DATA_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 # Generate Seed for replicable results
 SEED = npr.randint(0,100)
+
 npr.seed(SEED) # only need to do it here (not for every agent move)
 
 # Global dicts to hold widgets
@@ -209,6 +210,7 @@ def draw_grid(screen, state):
         for y in range(state.grid_size):
             percent_diff = 1 - state.petri.nutrient_grid[x, y]/state.petri.C_max
             pygame.draw.circle(screen, (79+int(146*percent_diff),53+int(175*percent_diff),155+int(66*(percent_diff))), (x * 2, y * 2), 1)
+
     # Draw agents
     for agent in state.petri.agents:
         if agent.imotile:
@@ -216,6 +218,7 @@ def draw_grid(screen, state):
         else:
             colour = (229, 89, 52)
         pygame.draw.circle(screen, colour, (int(agent.x * 2), int(agent.y * 2)), 1)
+
     # Draw text labels
     midpoint = state.grid_size
     font = pygame.font.SysFont("Arial", 15)
@@ -277,21 +280,25 @@ def draw_ui(screen, state):
 
 
 
+
 def main():
-    GRID_SIZE = 500  # Square grid dimensions
+
+ 
+    # Nutrient Grid Parameters:
+    GRID_SIZE = 512  # Square grid dimensions
     TIME_STEP = 1 # Stepwise diffusion rate per loop iteration
     C_MAX = 1.0 # Max nutrient val oon a given square
     D_C = 0.05 # rate of diffusion
 
     AGENT_PARAMS = {
-        "r_max": 0.05, # max reaction rate
-        "K_m": 0.25, # michaelis menten constant
-        "m_min": 1, # min mass of agent
-        "delta_H": 10, # mass to energy rate
-        "F_d": 0.5, # drag force
-        "mu": 0.8, # viscosity
-        "p": 0.01, # nutrient to mass rate
-        "density": 0.08, # density of agent
+        "r_max": 0.0498,
+        "K_m": 0.25,
+        "m_min": 1,
+        "delta_H": 10,
+        "F_d": 0.5,
+        "mu": 0.8,
+        "p": 0.02,
+        "density": 0.08,
     }
     
     # Paper values
@@ -304,11 +311,15 @@ def main():
     print(f'E: {(AGENT_PARAMS["F_d"]*min_r)/(AGENT_PARAMS["m_min"]*AGENT_PARAMS["delta_H"])}')
     
     # Simulation Parameters:
-    num_agents = 1   # Initial cell count
-    mode = 'gif'    # 'vis' for visualisation, 'gif' same but saves images.
+
+    max_iters = 300000     # Number of loop iterations for simulation
+    max_agents = 30000
+    num_agents = 50   # Initial cell count
+    mode = 'vis'    # 'vis' for visualisation, 'gif' same but saves images.
 
     # Simulation state (holds all simulation data + petri dish + agents)
-    sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, SEED, num_agents)
+    sim = SimulationState(GRID_SIZE, AGENT_PARAMS, C_MAX, D_C, TIME_STEP, SEED, num_agents, max_iters)
+    sim.paused = True
 
     # Create output directory for GIFs
     if not os.path.exists(f"figures/{folder}"):
@@ -321,7 +332,7 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
-    draw_interval = 100
+    draw_interval = 200
     pic_interval = 1000
     
     # First screen
@@ -330,6 +341,7 @@ def main():
     draw_ui(screen, sim)
     draw_grid(screen, sim)
     pygame_widgets.update([])
+
     pygame.display.flip()
 
     # Set up rectangles so we dont always need to update everything
@@ -337,7 +349,8 @@ def main():
     grid_rect = pygame.Rect(0, 0, GRID_SIZE*2, GRID_SIZE*2)
     
     # Continue while there are iterations left and the simulation is running
-    while running:
+
+    while sim.iteration < sim.max_iters and len(sim.petri.agents) < max_agents and running:
         # Check for events (quit, mouse click)
         events = pygame.event.get()
         pygame_widgets.update(events)
@@ -352,6 +365,7 @@ def main():
                 pygame.display.update(grid_rect)
         pygame.display.update(panel_rect)
         
+
         # Update if simulation is not paused
         if not sim.paused:
             sim.update() # update agents + grid
@@ -359,12 +373,17 @@ def main():
             if sim.iteration % (draw_interval)==0:
                 draw_grid(screen, sim)
                 pygame.display.update(grid_rect)
+
                 # Save image every 500 iterations
                 if mode == 'gif' and sim.iteration % (pic_interval)==0:
                     pygame.image.save(screen, f"figures/{folder}/frame_{sim.iteration}.png")
                     
         clock.tick(60)
-        
+
+    
+    save_data(sim, f"data_{sim.iteration}.json")
+    save_frame(screen, f"img_{sim.iteration}.png") 
+
     # Keep window open until manually closed
     while running:
         for event in pygame.event.get():
