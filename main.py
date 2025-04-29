@@ -21,7 +21,6 @@ folder = f'DATA_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
 
 # Generate Seed for replicable results
 SEED = npr.randint(0,100)
-SEED = 397944378
 npr.seed(SEED) # only need to do it here (not for every agent move)
 
 # Global dicts to hold widgets
@@ -126,9 +125,9 @@ def init_widgets(screen,state):
     width, height = screen.get_size()
 
     # Create sliders and text boxes for each parameter
-    sliders['seed'] = Slider(screen, s_x_indent-10, s_y_indent+n*spacing, s_width, s_height, 
-                             min=0, max=400000000, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.seed)
-    slider_outputs['seed'] = TextBox(screen,tb_x_indent-10, tb_y_indent+n*spacing, tb_width+50, tb_height, fontSize=tb_fontsize, 
+    sliders['seed'] = Slider(screen, s_x_indent, s_y_indent+n*spacing, s_width, s_height, 
+                             min=0, max=100, step=1, colour=(100,100,100), handleColour=(30,21,60), initial=state.seed)
+    slider_outputs['seed'] = TextBox(screen,tb_x_indent, tb_y_indent+n*spacing, tb_width, tb_height, fontSize=tb_fontsize, 
                                      textColour=(30,21,60), borderThickness=0, colour=(225,228,221))
     slider_outputs['seed'].disable() 
     n += 1
@@ -339,7 +338,7 @@ def main():
 
     # Start simulation
     pygame.init()
-    panel_width = 210 # UI on right
+    panel_width = 200 # UI on right
     screen = pygame.display.set_mode((GRID_SIZE*2 + panel_width, GRID_SIZE*2))
     clock = pygame.time.Clock()
     running = True
