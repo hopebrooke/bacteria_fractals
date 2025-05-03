@@ -2,6 +2,14 @@
 
 Coursework for Bio-Inspired Computing COMP5400.
 
+## Statement of contribution
+We declare all work is our own, unless otherwise cited through references contained in the appendix.
+  
+All group members contributed equally to the codebase.
+    
+All report writing was conducted collaboratively, however each member was placed with the responsibility of writing a separate portion of the report. Introductory and Conclusory sections were written jointly. 
+    
+Background research was tasked to Archie Gerry, Methodology was tasked to Hope Brooke, and Results were tasked to Maximilian Hughes. However, inter-section collaboration was frequent and all members contributed some amount to all relevant sections.
 
 ## Running Sim
 
